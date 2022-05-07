@@ -1,0 +1,35 @@
+<html>
+<header> 
+</header>
+<body>
+  <h1>{{h1}} </h1>
+  {{內容1}}
+
+  {% if appInfo != undefined %}
+  <table border="1">
+    <tr>
+       <td>{{appInfo.id}}</td>
+       <td>{{appInfo.name}}</td>
+    </tr>
+    <tr>
+       <td>row 2, cell 1</td>
+       <td>row 2, cell 2</td>
+    </tr>
+  </table>
+  {% endif %}
+
+    {% if data != undefined %}
+    <table border="1">
+        {% for key, value in data.items() %}
+        <tr>
+            <th> {{ key }} </th>
+            <td> {{ value }} </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+
+
+</body>
+</html>

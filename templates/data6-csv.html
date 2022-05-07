@@ -1,0 +1,32 @@
+<html>
+<header>
+</header>
+<body>
+
+
+    {% if list1 != undefined %}
+    <table border="1">
+
+        <tr>
+            {% for value in header %}
+            <td> {{ value }} </td>
+            {% endfor %}
+        </tr>
+
+
+
+        {% for row in list1 %}
+        <tr>
+            {% for value in row %}
+            <td> {{ value }} </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+</body>
+</html>
+
+
+
