@@ -3,18 +3,16 @@
 import os.path
 import requests
 import json
-import time, datetime                      # 時間
-from openpyxl import load_workbook,Workbook
-# from sys import version as python_version
-# from cgi import parse_header, parse_multipart
+import datetime
+from openpyxl import load_workbook, Workbook
 import socketserver as socketserver
 from http.server import SimpleHTTPRequestHandler as RequestHandler
-# from urllib.parse import parse_qs
-auth_token='IVzkSnELK9I3QJTuhaSHPF/ymv+fkLA8X6ZkLoFJS5FRJlDGvX0z42TxLadRTGcmXoC8ysu4FxycyV/yYOE9IVsqw6OiGEpPp3N4zp4zXNKh22LFbPHtWBnjwZl8WVWePSMqQAJ5TmChyBI0yFwGgQdB04t89/1O/w1cDnyilFU='
+
+auth_token = 'IVzkSnELK9I3QJTuhaSHPF/ymv+fkLA8X6ZkLoFJS5FRJlDGvX0z42TxLadRTGcmXoC8ysu4FxycyV/yYOE9IVsqw6OiGEpPp3N4zp4zXNKh22LFbPHtWBnjwZl8WVWePSMqQAJ5TmChyBI0yFwGgQdB04t89/1O/w1cDnyilFU='
 
 
 class LineGetResponse:
-    def __init__(self,file,userinput):
+    def __init__(self, file, userinput):
         self.filename = file
         self.userinput = userinput
         self.sheet = load_workbook(filename=self.filename)['response']
@@ -56,12 +54,12 @@ class LineGetResponse:
         elif loc:
             loc = loc.split(',')
             output = {
-                    "type": "location",
-                    "title": loc[0],
-                    "address": loc[1],  # "110台北市信義區信義路五段7號",
-                    "latitude": loc[2],  # 25.0330766,
-                    "longitude": loc[3],  # 121.5609268
-                }
+                "type": "location",
+                "title": loc[0],
+                "address": loc[1],  # "110台北市信義區信義路五段7號",
+                "latitude": loc[2],  # 25.0330766,
+                "longitude": loc[3],  # 121.5609268
+            }
         elif template:
             output = {
                 "type": "template",
@@ -105,7 +103,7 @@ class LineGetResponse:
                 output = {'type': 'text', 'text': '桃園公車中查無此資料'}
         return output
 
-    def ubike_info(self,station):
+    def ubike_info(self, station):
         url = 'https://data.tycg.gov.tw/api/v1/rest/datastore/a1b4714b-3b75-4ff8-a8f2-cc377e4eaa0f?format=json' + '&limit=300'
         headers = {
             'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"}
@@ -115,16 +113,16 @@ class LineGetResponse:
         for x in range(0, len(datas["result"]["records"])):
             if station.find(datas["result"]["records"][x]["sna"]) > -1:
                 info += str(
-                    "中文場站名稱:" + datas["result"]["records"][x]["sna"] + '\n' + \
-                    "場站總停車格:" + datas["result"]["records"][x]["tot"] + '\n' + \
-                    "場站目前車輛數:" + datas["result"]["records"][x]["sbi"] + '\n' + \
-                    "地址:" + datas["result"]["records"][x]["ar"] + '\n' + \
+                    "中文場站名稱:" + datas["result"]["records"][x]["sna"] + '\n' +
+                    "場站總停車格:" + datas["result"]["records"][x]["tot"] + '\n' +
+                    "場站目前車輛數:" + datas["result"]["records"][x]["sbi"] + '\n' +
+                    "地址:" + datas["result"]["records"][x]["ar"] + '\n' +
                     "場站是否暫停營運" + datas["result"]["records"][x]["act"])
                 break
         return info
 
-    def bus_info(self,bus_id):
-        url = 'https://data.tycg.gov.tw/api/v1/rest/datastore/bf55b21a-2b7c-4ede-8048-f75420344aed?format=json'+'&limit=500'
+    def bus_info(self, bus_id):
+        url = 'https://data.tycg.gov.tw/api/v1/rest/datastore/bf55b21a-2b7c-4ede-8048-f75420344aed?format=json' + '&limit=500'
         headers = {
             'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"}
         req = requests.get(url, headers=headers)
@@ -134,58 +132,59 @@ class LineGetResponse:
         for x in range(size1):
             if bus_id.find(data1["result"]["records"][x]["BusID"]) > -1:
                 info += str(
-                      "車輛:" + data1["result"]["records"][x]["BusID"] + '\n' + \
-                      "業者代號:" + data1["result"]["records"][x]["ProviderID"] + '\n' + \
-                      "GPS車速:" + data1["result"]["records"][x]["Speed"] + '\n' + \
-                      "GPS時間:" + data1["result"]["records"][x]["DataTime"] + '\n' + \
-                      "路線方向(1:去程,2:回程):" + data1["result"]["records"][x]["GoBack"])
+                    "車輛:" + data1["result"]["records"][x]["BusID"] + '\n' +
+                    "業者代號:" + data1["result"]["records"][x]["ProviderID"] + '\n' +
+                    "GPS車速:" + data1["result"]["records"][x]["Speed"] + '\n' +
+                    "GPS時間:" + data1["result"]["records"][x]["DataTime"] + '\n' +
+                    "路線方向(1:去程,2:回程):" + data1["result"]["records"][x]["GoBack"])
                 break
         return info
 
+
 class MyHandler(RequestHandler):
     def do_POST(self):
-        varLen = int(self.headers['Content-Length'])        # 取得讀取進來的網路資料長度
+        varLen = int(self.headers['Content-Length'])  # 取得讀取進來的網路資料長度
         if varLen > 0:
-            post_data = self.rfile.read(varLen)             # 讀取傳過來的資料
-            data = json.loads(post_data)                    # 將json格式的字串轉爲字典格式
+            post_data = self.rfile.read(varLen)  # 讀取傳過來的資料
+            data = json.loads(post_data)  # 將json格式的字串轉爲字典格式
             print(data)
-            replyToken=data['events'][0]['replyToken']       # 回郵信封(Reply Token)可以不用花錢
-            userId3=data['events'][0]['source']['userId']    # 傳資料過來的使用者是誰
-            userInput=data['events'][0]['message']['text']        # 用戶的傳遞過來的文字內容
-            returnType =data['events'][0]['message']['type'] # 傳過來的資料型態
-            time1 = data['events'][0]['timestamp']  # 傳過來的資料型態
-            time2 = str(datetime.datetime.fromtimestamp(time1/1000))
+            replyToken = data['events'][0]['replyToken']  # 回郵信封(Reply Token)可以不用花錢
+            userId = data['events'][0]['source']['userId']
+            userInput = data['events'][0]['message']['text']
+            returnType = data['events'][0]['message']['type']
+            time1 = data['events'][0]['timestamp']
+            time2 = str(datetime.datetime.fromtimestamp(time1 / 1000))
 
         message = {
             "replyToken": replyToken,
-            "messages": [LineGetResponse('line_response.xlsx',userInput).get_response()]
-                  }
+            "messages": [LineGetResponse('line_response.xlsx', userInput).get_response()]
+        }
         # 資料回傳 到 Line 的 https 伺服器
         hed = {'Authorization': 'Bearer ' + auth_token}
         url = 'https://api.line.me/v2/bot/message/reply'
         self.send_response(200)
         self.end_headers()
-        requests.post(url, json=message, headers=hed)      # 把資料HTTP POST送出去
+        requests.post(url, json=message, headers=hed)  # 把資料HTTP POST送出去
 
         # save log file
         if not os.path.exists('Log.xlsx'):
             log = Workbook()
             sheet1 = log.active
-            sheet1.append(['UserID','UserInput','BotReply','Timestamp'])
+            sheet1.append(['UserID', 'UserInput', 'BotReply', 'Timestamp'])
         else:
             log = load_workbook('Log.xlsx')
             sheet1 = log.active
         if 'text' in message['messages'][0].keys():
-            sheet1.append([userId3,userInput,message['messages'][0]['text'],time2])
+            sheet1.append([userId, userInput, message['messages'][0]['text'], time2])
         else:
-            sheet1.append([userId3, userInput, 'nontextreply', time2])
+            sheet1.append([userId, userInput, 'nontextreply', time2])
         log.save('Log.xlsx')
 
-socketserver.TCPServer.allow_reuse_address = True              # 可以重複使用IP
+
+socketserver.TCPServer.allow_reuse_address = True  # 可以重複使用IP
 httpd = socketserver.TCPServer(('0.0.0.0', 8888), MyHandler)  # 啟動WebServer   :8888
 try:
-    httpd.serve_forever()                          # 等待用戶使用 WebServer
+    httpd.serve_forever()  # 等待用戶使用 WebServer
 except:
     print("Closing the server.")
-    httpd.server_close()                           # 關閉 WebServer
-
+    httpd.server_close()  # 關閉 WebServer
