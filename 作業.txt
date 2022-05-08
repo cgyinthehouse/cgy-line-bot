@@ -1,18 +1,18 @@
-#第１題
-    google form　線上問卷
+# 第１題
+google form　線上問卷
 
-#第２題
-    Line 按鈕按下後，連接到 google form　線上問卷
+# 第２題
+Line 按鈕按下後，連接到 google form　線上問卷
 
-#第3題
-    Line 輸入車號，回答 該車輛的狀態
+# 第3題
+Line 輸入車號，回答 該車輛的狀態
 
 233-練習題-html-bus-第一答案.py
 
-#第4 題 Line
-    請將你之前所做的open Data的專案,
-    把它整合到我們的LINE裡面
+# 第4 題 Line
+請將你之前所做的open Data的專案,
+把它整合到我們的LINE裡面
 
-#第5 題 Flask
-    請將你之前所做的open Data的專案,
-    把它整合到我們的Flask 裡面
+# 第5 題 Flask
+請將你之前所做的open Data的專案,
+把它整合到我們的Flask 裡面

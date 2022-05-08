@@ -1,6 +1,6 @@
 import flask     # pip install flask
 from flask import render_template
-from flask import  request
+from flask import request
 import mylibs
 import json
 # 測試 請透過

@@ -1,5 +1,5 @@
 import requests
-from JSON_ubike_api import info_bystation
+from JSON_ubike_api import ubike_info
 # 一定要改的地方～～
 auth_token="IVzkSnELK9I3QJTuhaSHPF/ymv+fkLA8X6ZkLoFJS5FRJlDGvX0z42TxLadRTGcmXoC8ysu4FxycyV/yYOE9IVsqw6OiGEpPp3N4zp4zXNKh22LFbPHtWBnjwZl8WVWePSMqQAJ5TmChyBI0yFwGgQdB04t89/1O/w1cDnyilFU="
 
@@ -31,7 +31,7 @@ class MyHandler(RequestHandler):
             "messages": [
                 {
                     "type": "text",
-                    "text": info_bystation(userInput)
+                    "text": ubike_info(userInput)
                 }
             ]
         }
