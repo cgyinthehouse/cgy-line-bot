@@ -15,14 +15,12 @@ class LineGetResponse:
     def __init__(self, file, userinput):
         self.filename = file
         self.userinput = userinput
-        self.sheet = load_workbook(filename=self.filename)['response']
+        self.sheet = load_workbook(filename=file)['response']
 
     # 依照使用者輸入，查詢回應及執行動作
     def get_response(self):
-        wb = load_workbook('line_response.xlsx')  # 讀取檔案
-        sheet1 = wb.worksheets[0]  # 方法一打開第一個 工作表單
         questions = {}
-        for row in sheet1.rows:
+        for row in self.sheet.rows:
             questions[row[0].value] = [row[1].value, row[2].value]
         # fixme:購買key（同個cell多個Key）
 
@@ -97,8 +95,14 @@ class LineGetResponse:
             else:
                 output = {'type': 'text', 'text': '桃園ubike中查無此資料'}
         elif bus:
-            if self.bus_info(bus):
-                output = {'type': 'text', 'text': self.bus_info(bus)}
+            binfo = self.bus_info(bus)
+            if '' not in binfo:
+                output = [{'type': 'text', 'text': binfo[0]},
+                          {"type": "location",
+                           "title": binfo[3],
+                           "address": 'current location',
+                           "latitude": binfo[2],
+                           "longitude": binfo[1]}]
             else:
                 output = {'type': 'text', 'text': '桃園公車中查無此資料'}
         return output
@@ -110,9 +114,9 @@ class LineGetResponse:
         req = requests.get(url, headers=headers)
         datas = json.loads(req.text)
         info = ''
-        for x in range(0, len(datas["result"]["records"])):
+        for x in range(len(datas["result"]["records"])):
             if station.find(datas["result"]["records"][x]["sna"]) > -1:
-                info += str(
+                info = str(
                     "中文場站名稱:" + datas["result"]["records"][x]["sna"] + '\n' +
                     "場站總停車格:" + datas["result"]["records"][x]["tot"] + '\n' +
                     "場站目前車輛數:" + datas["result"]["records"][x]["sbi"] + '\n' +
@@ -121,24 +125,27 @@ class LineGetResponse:
                 break
         return info
 
-    def bus_info(self, bus_id):
+    def bus_info(self, bus):
         url = 'https://data.tycg.gov.tw/api/v1/rest/datastore/bf55b21a-2b7c-4ede-8048-f75420344aed?format=json' + '&limit=500'
         headers = {
             'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"}
         req = requests.get(url, headers=headers)
         data1 = json.loads(req.text)
         size1 = len(data1["result"]["records"])
-        info = ''
+        info, longitude, latitude, busid = '','','',''
         for x in range(size1):
-            if bus_id.find(data1["result"]["records"][x]["BusID"]) > -1:
-                info += str(
-                    "車輛:" + data1["result"]["records"][x]["BusID"] + '\n' +
+            if data1["result"]["records"][x]["BusID"] in bus:
+                busid = data1["result"]["records"][x]["BusID"]
+                info = str(
+                    "車輛:" + busid + '\n' +
                     "業者代號:" + data1["result"]["records"][x]["ProviderID"] + '\n' +
                     "GPS車速:" + data1["result"]["records"][x]["Speed"] + '\n' +
                     "GPS時間:" + data1["result"]["records"][x]["DataTime"] + '\n' +
                     "路線方向(1:去程,2:回程):" + data1["result"]["records"][x]["GoBack"])
+                longitude = data1["result"]["records"][x]["Longitude"]
+                latitude = data1["result"]["records"][x]["Latitude"]
                 break
-        return info
+        return info, longitude, latitude, busid
 
 
 class MyHandler(RequestHandler):
@@ -155,9 +162,13 @@ class MyHandler(RequestHandler):
             time1 = data['events'][0]['timestamp']
             time2 = str(datetime.datetime.fromtimestamp(time1 / 1000))
 
+        if type(mmm := LineGetResponse('line_response.xlsx', userInput).get_response()) != list:
+            msg = [mmm]
+        else:
+            msg = mmm
         message = {
             "replyToken": replyToken,
-            "messages": [LineGetResponse('line_response.xlsx', userInput).get_response()]
+            "messages": msg
         }
         # 資料回傳 到 Line 的 https 伺服器
         hed = {'Authorization': 'Bearer ' + auth_token}
@@ -166,7 +177,7 @@ class MyHandler(RequestHandler):
         self.end_headers()
         requests.post(url, json=message, headers=hed)  # 把資料HTTP POST送出去
 
-        # save log file
+        # 開啓/建立 log file
         if not os.path.exists('Log.xlsx'):
             log = Workbook()
             sheet1 = log.active
@@ -174,10 +185,18 @@ class MyHandler(RequestHandler):
         else:
             log = load_workbook('Log.xlsx')
             sheet1 = log.active
-        if 'text' in message['messages'][0].keys():
-            sheet1.append([userId, userInput, message['messages'][0]['text'], time2])
+        # 把使用者輸入及回應寫入log file
+        if type(message['messages']) == dict:
+            if 'text' in message['messages'].keys():
+                sheet1.append([userId, userInput, message['messages']['text'], time2])
         else:
-            sheet1.append([userId, userInput, 'nontextreply', time2])
+            if type(message['messages']) == list:
+                try:
+                    sheet1.append([userId, userInput,message['messages'][0]['text'], time2])
+                except KeyError:
+                    sheet1.append([userId, userInput, 'nontextreply', time2])
+            else:
+                sheet1.append([userId, userInput, 'nontextreply', time2])
         log.save('Log.xlsx')
 
 
