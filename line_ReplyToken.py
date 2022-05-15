@@ -40,7 +40,7 @@ class LineGetResponse:
                 msg_return = self.line_reply_format(ubike=self.userinput)
             elif 'bus' in self.userinput:
                 msg_return = self.line_reply_format(bus=self.userinput)
-            else:
+            else:  # todo : show info to users about what they can do.
                 msg_return = {'type': "text",
                               'text': 'Unable to recognize user\'s input'}
         return msg_return
@@ -186,6 +186,7 @@ class MyHandler(RequestHandler):
             log = load_workbook('Log.xlsx')
             sheet1 = log.active
         # 把使用者輸入及回應寫入log file
+        # todo : beautify this section
         if type(message['messages']) == dict:
             if 'text' in message['messages'].keys():
                 sheet1.append([userId, userInput, message['messages']['text'], time2])

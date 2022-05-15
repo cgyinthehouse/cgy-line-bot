@@ -122,10 +122,10 @@ input:focus{
 </html>
 <script>
     var me = {};
-me.avatar = "https://lh6.googleusercontent.com/-lr2nyjhhjXw/AAAAAAAAAAI/AAAAAAAARmE/MdtfUmC0M4s/photo.jpg?sz=48";
+me.avatar = "https://memeprod.ap-south-1.linodeobjects.com/user-template/0ec26595ab73af054decbb1ceb96cc32.png";
 
 var you = {};
-you.avatar = "https://a11.t26.net/taringa/avatares/9/1/2/F/7/8/Demon_King1/48x48_5C5.jpg";
+you.avatar = "https://memeprod.ap-south-1.linodeobjects.com/user-template/b3a4babd59ebb46530a7f7cca856d848.png";
 
 function formatAMPM(date) {
     var hours = date.getHours();
@@ -187,7 +187,7 @@ $(".mytext").on("keydown", function(e){
             //4. JS: 等待，並收到回傳資料後
             // 參考資料
             // https://www.w3schools.com/jquery/jquery_ref_ajax.asp
-            iurl="http://127.0.0.1:5000/fun1?用戶輸入的文字="+text+"&format=json"
+            iurl="http://127.0.0.1:5000/func1?userInput="+text+"&format=json"
             $.ajax({
                 url: iurl,
                 type: 'GET',
@@ -195,8 +195,8 @@ $(".mytext").on("keydown", function(e){
                 success: function(res) {
                     console.log(res);
                     // alert(res);
-                    console.log(res["Log文字"]);
-                    insertChat("me", res["Log文字"], 0);
+                    console.log(res["response"]);
+                    insertChat("me", res["response"], 0);
                 }
             });
 

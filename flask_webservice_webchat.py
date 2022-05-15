@@ -2,6 +2,7 @@ import flask     # pip install flask
 from flask import render_template
 from flask import request
 import mylibs
+import aiml
 import json
 # 測試 請透過
 # http://127.0.0.1:5000/
@@ -15,17 +16,21 @@ import json
 # templates/data2.html
 
 sheetQA = mylibs.openpyxl_open_sheet('line.xlsx', "問答題")   # 取得要用來查詢的excel sheet
-
-app = flask.Flask(__name__,static_url_path='/static')
+aiml_kernel = aiml.Kernel()
+aiml_kernel.learn('364-AIML-UBike.xml')
+app = flask.Flask(__name__, static_url_path='/static')
 
 
 @app.route("/func1", methods=['GET'])
 def func1():
     userInput = request.args.get('userInput')
     format = request.args.get('format')
-    retval, logtext = mylibs.line_get_response(userInput, sheetQA)
+    if res := mylibs.aiml_response(userInput, aiml_kernel):
+        logtext = res
+    else:
+        _, logtext = mylibs.line_get_response(userInput, sheetQA)
     if format == "json":  # 當使用者指定回傳json格式時
-        dict1 = {"用戶輸入的文字": userInput,
+        dict1 = {"userInput": userInput,
                  "response": logtext}
         # json.dumps(dict) # 是將字典轉換為字串
         json_str = json.dumps(dict1, ensure_ascii=False)  # ensure_ascii=False 讓中文正常顯示
@@ -47,4 +52,4 @@ def chat():
 
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5000,debug=True)

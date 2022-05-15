@@ -2,7 +2,10 @@ from openpyxl import load_workbook
 import urllib.request as httplib  # 3.x
 import json
 from datetime import datetime
-
+import aiml
+import ssl
+import os
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def openpyxl_open_sheet(filename, sheet):
     wb = load_workbook(filename)  # 讀取檔案
@@ -278,7 +281,7 @@ def line_get_response(userInput, sheetQA):
                     retval = line_res_text(answer)
                     logtext = answer
             else:
-                answer = "我不知道，請電話詢問"
+                answer = "I don't know what you mean."
                 retval = line_res_text(answer)
                 logtext = answer
     elif handle == "地圖":
@@ -290,6 +293,32 @@ def line_get_response(userInput, sheetQA):
         retval = line_res_template(title)
         logtext = title
     return retval, logtext
+
+
+def aiml_response(userinput, kernel):
+    contents = kernel.respond(userinput)
+    if "WARNING: No match found for input:" in contents or not contents:
+        contents = ""
+    elif 'action' in contents:
+        data = json.loads(contents)
+        print(data)
+        if 'exe' in data:
+            os.system(data["exe"])
+        elif 'item' in data:
+            price = 0
+            meal = data["meal"]
+            items = data["items"]
+            tax = data["tax"]
+            VISA = data["VISA"]
+            if meal == ' 草莓蛋糕' or meal == '草莓蛋糕':
+                price = 100 * int(items)
+                if tax:
+                    price *= 1.05
+                if VISA:
+                    price *= 1.02
+            contents = "一共是" + str(price)
+    return contents
+
 
 
 def line_timestamp_formatter(timestamp):  # 將line的timestamp轉成可閲讀形式

@@ -1,0 +1,129 @@
+<aiml version="1.0.1" encoding="UTF-8">
+    <!-- start-->
+    <category>
+      <pattern>你好</pattern>
+      <template>
+            <random>
+                <li>你好,歡迎來到甜心一點烘培坊</li>
+                <li>你好我能為妳做什麼.</li>
+            </random>
+      </template>
+    </category>
+
+    <category>
+      <pattern>營業時間</pattern>
+      <template>
+          我們的營業時間為10點到22點
+      </template>
+    </category>
+    <category>
+      <pattern>地點</pattern>
+      <template>
+          新北市板橋區
+      </template>
+    </category>
+
+    <category>
+      <pattern>請給我 * 份 *</pattern>
+      <template>
+         你要 <set name = "items"> <star index = "1"/> </set>  份   <set name = "meal"> <star index = "2"/></set> .
+      </template>
+    </category>
+
+    <category>
+      <pattern>請給我 * 個 *</pattern>
+      <template>
+         你要 <set name = "items"> <star index = "1"/> </set>  份   <set name = "meal"> <star index = "2"/></set> .
+      </template>
+    </category>
+    <category>
+      <pattern>我要開發票</pattern>
+      <template>
+          好  發票要多5% <set name = "tax">True</set>.
+      </template>
+    </category>
+    <category>
+      <pattern>我要刷卡</pattern>
+      <template>
+          好  刷卡要多2% <set name = "VISA">True</set>.
+      </template>
+    </category>
+
+    <category>
+      <pattern>結帳</pattern>
+      <template>
+          {"action":"checkout",items":"<get name = "items"/>","meal":"<get name = "meal"/>","tax":"<get name = "tax"/>","VISA":"<get name = "VISA"/>"}
+      </template>
+    </category>
+
+    <category>
+      <pattern>* 天氣</pattern>
+      <template>
+          {"action":"exe","exe":"python weather_request.py <star/>"}
+      </template>
+    </category>
+
+
+    <category>
+      <pattern>UBIKE *</pattern>
+      <template>
+          {"action":"exe","exe":"python JSON_ubike_api.py <star/>"}
+      </template>
+    </category>
+    <category>
+      <pattern>* UBIKE</pattern>
+        <template>
+            <srai>ubike <star/></srai>
+        </template>
+    </category>
+    <category>
+      <pattern>_ UBIKE *</pattern>
+        <template>
+            <srai>ubike <star/></srai>
+        </template>
+    </category>
+
+
+    <category>
+      <pattern>你喜歡 *或 *</pattern>
+      <template>
+         我比較喜歡 <star index = "1"/> 勝過 <star index = "2"/>.
+      </template>
+    </category>
+    <category>
+      <pattern>I LOVE *</pattern>
+      <template>
+         I too LOVE <star/>.
+      </template>
+    </category>
+    <category>
+      <pattern>I LIKE *</pattern>
+      <template>
+         I too like <star/>.
+      </template>
+    </category>
+   
+    <category>
+      <pattern>DO YOU LIKE * OR *</pattern>
+      <template>
+         I like <star index = "1"/> better than <star index = "2"/>.
+      </template>
+    </category>
+
+    <category>
+      <pattern>I AM *</pattern>
+      <template>
+         Hello <set name = "username"> <star/>! </set>
+      </template>  
+    </category>  
+   
+    <category>
+      <pattern>GOOD NIGHT</pattern>
+      <template>
+         Hi <get name = "username"/> !
+      </template>  
+    </category>
+
+
+    
+</aiml>
