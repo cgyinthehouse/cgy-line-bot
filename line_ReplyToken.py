@@ -116,7 +116,7 @@ class LineGetResponse:
         info = ''
         for x in range(len(datas["result"]["records"])):
             if station.find(datas["result"]["records"][x]["sna"]) > -1:
-                info = str(
+                info += str(
                     "中文場站名稱:" + datas["result"]["records"][x]["sna"] + '\n' +
                     "場站總停車格:" + datas["result"]["records"][x]["tot"] + '\n' +
                     "場站目前車輛數:" + datas["result"]["records"][x]["sbi"] + '\n' +
@@ -146,6 +146,7 @@ class LineGetResponse:
                 latitude = data1["result"]["records"][x]["Latitude"]
                 break
         return info, longitude, latitude, busid
+
 
 
 class MyHandler(RequestHandler):
@@ -185,19 +186,10 @@ class MyHandler(RequestHandler):
         else:
             log = load_workbook('Log.xlsx')
             sheet1 = log.active
-        # 把使用者輸入及回應寫入log file
-        # todo : beautify this section
-        if type(message['messages']) == dict:
-            if 'text' in message['messages'].keys():
-                sheet1.append([userId, userInput, message['messages']['text'], time2])
+        if 'text' in message['messages'][0].keys():
+            sheet1.append([userId, userInput, message['messages'][0]['text'], time2])
         else:
-            if type(message['messages']) == list:
-                try:
-                    sheet1.append([userId, userInput,message['messages'][0]['text'], time2])
-                except KeyError:
-                    sheet1.append([userId, userInput, 'nontextreply', time2])
-            else:
-                sheet1.append([userId, userInput, 'nontextreply', time2])
+            sheet1.append([userId, userInput, 'nontextreply', time2])
         log.save('Log.xlsx')
 
 
